@@ -49,7 +49,7 @@ namespace HelloWorld
                     var player = networkedClient.PlayerObject.GetComponent<HelloWorldPlayer>();
                     if (player)
                     {
-                        player.Move();
+                        // player.Move();
                     }
                 }
             }

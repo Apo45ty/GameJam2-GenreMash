@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 281167277697878216}
   - component: {fileID: 281167277697878219}
   - component: {fileID: 7723776475757000578}
-  - component: {fileID: 3486837127208550195}
+  - component: {fileID: 2850790216285944843}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -115,7 +115,7 @@ MonoBehaviour:
   PrefabHashGenerator: Player
   AlwaysReplicateAsRoot: 0
   DontDestroyWithOwner: 0
---- !u!114 &3486837127208550195
+--- !u!114 &2850790216285944843
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,3 +129,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Position:
     m_InternalValue: {x: 0, y: 0, z: 0}
+  MOVE_SPEED: 10
