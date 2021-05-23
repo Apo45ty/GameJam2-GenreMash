@@ -5,6 +5,9 @@ namespace HelloWorld
 {
     public class HelloWorldManager : MonoBehaviour
     {
+        void Start(){
+            Application.targetFrameRate = 30;
+        }
         void OnGUI()
         {
             GUILayout.BeginArea(new Rect(10, 10, 300, 300));
@@ -49,7 +52,7 @@ namespace HelloWorld
                     var player = networkedClient.PlayerObject.GetComponent<HelloWorldPlayer>();
                     if (player)
                     {
-                        // player.Move();
+                         player.GetComponent<Rigidbody>().AddForce(Vector3.one*30);
                     }
                 }
             }

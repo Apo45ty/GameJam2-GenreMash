@@ -7,6 +7,11 @@ namespace HelloWorld
 {
     public class HelloWorldPlayer : NetworkBehaviour
     {
+        public NetworkVariableBool canMove = new NetworkVariableBool(new NetworkVariableSettings
+        {
+            WritePermission = NetworkVariablePermission.ServerOnly,
+            ReadPermission = NetworkVariablePermission.Everyone
+        });
         public NetworkVariableVector3 Position = new NetworkVariableVector3(new NetworkVariableSettings
         {
             WritePermission = NetworkVariablePermission.ServerOnly,
@@ -26,12 +31,21 @@ namespace HelloWorld
         private float DampZAxis=0.3f;
         [SerializeField]
         private float MaxSpeed=10f;
+        public static int playerCount =0;
 
         public override void NetworkStart()
-        {
+        {   
+
+            if(IsServer){
+                canMove.Value=true;
+                this.name="Player"+(playerCount++);
+            }
             rb=GetComponent<Rigidbody>();
             if(IsOwner){
-                Camera.main.transform.parent=this.transform;
+                Camera.main.gameObject.SetActive(false);
+                GetComponentInChildren<Camera>().enabled=true;
+            } else {
+                GetComponentInChildren<Camera>().gameObject.SetActive(false);
             }
         }
 
@@ -39,17 +53,22 @@ namespace HelloWorld
         {
             //Move player in game
             transform.position = Position.Value;
+        }
+
+        void FixedUpdate(){
             //Send inputs to server
             float horizontal = Input.GetAxis("Horizontal");
             float vertical = Input.GetAxis("Vertical");
-            if(IsOwner){//&&(Mathf.Abs(horizontal)>0.01f||Mathf.Abs(vertical)>0.01f)
+            if(IsOwner&&(Mathf.Abs(horizontal)>0.01f||Mathf.Abs(vertical)>0.01f)){
                 movePlayerServerRpc(horizontal,vertical);
             }
         }
         
         [ServerRpc]
         void movePlayerServerRpc(float horizontal,float vertical){
-            if(!NetworkManager.Singleton.IsServer)return;
+            float ZForce=0,XForce=0;
+            if(!canMove.Value)
+                return;
             if(Mathf.Abs(horizontal)<0.01f)
                 rb.velocity=new Vector3(0,rb.velocity.y,rb.velocity.z);
             if(Mathf.Abs(vertical)<0.01f)
@@ -66,8 +85,8 @@ namespace HelloWorld
                 } else if(vertical>DampZAxis&&rb.velocity.z<-DampZ){
                     rb.velocity=Vector3.zero;
                 }
-                float XForce=MOVE_SPEED*horizontal;
-                float ZForce=MOVE_SPEED*vertical;
+                XForce=MOVE_SPEED*horizontal;
+                ZForce=MOVE_SPEED*vertical;
                 if(rb.velocity.x>MaxSpeed){
                     XForce=0;
                 }
@@ -78,10 +97,12 @@ namespace HelloWorld
             } else {
                 rb.velocity=Vector3.zero;
             }
-            // transform.position += new Vector3(MOVE_SPEED*horizontal*Time.deltaTime,Position.Value.y,MOVE_SPEED*vertical*Time.deltaTime);
             Position.Value = transform.position;
-            print(horizontal+":"+vertical+" "+Position.Value);
-            
+            if(IsOwner)
+                print(horizontal+":"+vertical+" "+Position.Value+" " +ZForce+" , "+XForce);
+            else {
+
+            }
         }
         public void OnDestroy(){
             Camera.main.transform.parent=null;
