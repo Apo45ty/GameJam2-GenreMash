@@ -3,22 +3,30 @@ using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
 using MLAPI.Messaging;
+using MLAPI.NetworkVariable;
 
 public class ExploteBehaviour : NetworkBehaviour
 {
-    private bool CanDestroy = false;
+    public NetworkVariableBool CanDestroy = new NetworkVariableBool(new NetworkVariableSettings
+        {
+            WritePermission = NetworkVariablePermission.OwnerOnly,
+            ReadPermission = NetworkVariablePermission.Everyone
+        },false);
     [SerializeField]
     private GameObject explosionEffecst;
     [SerializeField]
     private float ExplosionRadius=5f;
     [SerializeField]
     private float ExplosionForce=5f;
+    private bool ran=false;
 
     void OnCollisionEnter(Collision collision)
     {
+        if(ran)return;
         if(collision.gameObject.tag=="Player")return;
         ExplodeServerRpc();
         Instantiate(explosionEffecst,transform.position,explosionEffecst.transform.rotation);
+        ran=true;
     }
     [ServerRpc]
     void ExplodeServerRpc(){
@@ -31,7 +39,7 @@ public class ExploteBehaviour : NetworkBehaviour
             }
         }
         GetComponent<NetworkObject>().Despawn();
-        CanDestroy=true;
+        CanDestroy.Value=true;
     }
      void OnDrawGizmosSelected()
     {
@@ -40,7 +48,7 @@ public class ExploteBehaviour : NetworkBehaviour
     }
 
     void Update(){
-        if(CanDestroy)
+        if(CanDestroy.Value)
             Destroy(gameObject);
     }
 }

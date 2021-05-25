@@ -249,7 +249,7 @@ MonoBehaviour:
     StrafeSpeed: 4
     RunMultiplier: 2
     RunKey: 304
-    JumpForce: 30
+    JumpForce: 10
     SlopeCurveModifier:
       serializedVersion: 2
       m_Curve:
@@ -459,7 +459,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b35f47f3fac11f48846760399c41481, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentlyEquipedWeapon: 1
+  isShooting:
+    m_InternalValue: 0
+  transformParentPosition:
+    m_InternalValue: {x: 0, y: 0, z: 0}
+  transformForward:
+    m_InternalValue: {x: 0, y: 0, z: 0}
+  CurrentlyEquipedWeapon: 0
   shootPrefab: {fileID: 4205088869970819243, guid: f1e0db1a4844a204fa7e4be978d8a4ce, type: 3}
   shieldPrefab: {fileID: 4428600311889231787, guid: 3e1e17b953932bd47bacad90c4222a7e, type: 3}
   ShootVelocity: 1000
