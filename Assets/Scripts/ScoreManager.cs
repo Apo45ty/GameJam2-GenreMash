@@ -1,13 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using MLAPI.NetworkVariable;
 using UnityEngine;
 using UnityEngine.UI;
-public class ScoreManager : MonoBehaviour
+using MLAPI;
+public class ScoreManager : NetworkBehaviour
 {
-    [SerializeField]
-    private int leftTeamScore = 0;
-    [SerializeField]
-    private int rightTeamScore = 0;
+    public NetworkVariableInt leftTeamScore = new NetworkVariableInt(new NetworkVariableSettings
+        {
+            WritePermission = NetworkVariablePermission.ServerOnly,
+            ReadPermission = NetworkVariablePermission.Everyone
+        },0);
+    public NetworkVariableInt rightTeamScore = new NetworkVariableInt(new NetworkVariableSettings
+        {
+            WritePermission = NetworkVariablePermission.ServerOnly,
+            ReadPermission = NetworkVariablePermission.Everyone
+        },0);
     [SerializeField]
     private Text redTeamScoreBoard;
     [SerializeField]
@@ -17,17 +25,17 @@ public class ScoreManager : MonoBehaviour
     void Update()
     {
         if(redTeamScoreBoard)
-            redTeamScoreBoard.text=""+rightTeamScore;
+            redTeamScoreBoard.text=""+rightTeamScore.Value;
         if(blueTeamScoreBoard)
-            blueTeamScoreBoard.text=""+leftTeamScore;
+            blueTeamScoreBoard.text=""+leftTeamScore.Value;
     }
 
     public void addScoreToBlueTeam(int score){
-        leftTeamScore+=score;
+        leftTeamScore.Value+=score;
     }
     
     public void addScoreToRedTeam(int score){
-        rightTeamScore+=score;
+        rightTeamScore.Value+=score;
     }
 
     public void addScoreToTeam(int score, Teams team){
