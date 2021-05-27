@@ -1,10 +1,12 @@
 using MLAPI;
 using UnityEngine;
+using MLAPI.Transports.UNET;
 
 namespace HelloWorld
 {
     public class HelloWorldManager : MonoBehaviour
     {
+        private static string ip="127.0.0.1";
         void Start(){
             Application.targetFrameRate = 30;
         }
@@ -18,8 +20,6 @@ namespace HelloWorld
             else
             {
                 StatusLabels();
-
-                SubmitNewPosition();
             }
 
             GUILayout.EndArea();
@@ -27,9 +27,18 @@ namespace HelloWorld
 
         static void StartButtons()
         {
-            if (GUILayout.Button("Host")) NetworkManager.Singleton.StartHost();
-            if (GUILayout.Button("Client")) NetworkManager.Singleton.StartClient();
-            if (GUILayout.Button("Server")) NetworkManager.Singleton.StartServer();
+            ip = GUILayout.TextField(ip,20);
+            NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress =ip;
+            if (GUILayout.Button("Host")) {
+                NetworkManager.Singleton.StartHost();
+            }
+            if (GUILayout.Button("Client")){
+                NetworkManager.Singleton.StartClient();
+            } 
+            if (GUILayout.Button("Server")){
+                NetworkManager.Singleton.StartServer();
+            } 
+            
         }
 
         static void StatusLabels()
@@ -42,20 +51,6 @@ namespace HelloWorld
             GUILayout.Label("Mode: " + mode);
         }
 
-        static void SubmitNewPosition()
-        {
-            if (GUILayout.Button(NetworkManager.Singleton.IsServer ? "Move" : "Request Position Change"))
-            {
-                if (NetworkManager.Singleton.ConnectedClients.TryGetValue(NetworkManager.Singleton.LocalClientId,
-                    out var networkedClient))
-                {
-                    var player = networkedClient.PlayerObject.GetComponent<HelloWorldPlayer>();
-                    if (player)
-                    {
-                         player.GetComponent<Rigidbody>().AddForce(Vector3.one*30);
-                    }
-                }
-            }
-        }
+        
     }
 }

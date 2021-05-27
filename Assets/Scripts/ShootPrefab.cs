@@ -8,21 +8,8 @@ using System;
 
 public class ShootPrefab : NetworkBehaviour
 {
-    public NetworkVariableBool isShooting = new NetworkVariableBool(new NetworkVariableSettings
-        {
-            WritePermission = NetworkVariablePermission.OwnerOnly,
-            ReadPermission = NetworkVariablePermission.Everyone
-        });
-    public NetworkVariableVector3 transformParentPosition = new NetworkVariableVector3(new NetworkVariableSettings
-        {
-            WritePermission = NetworkVariablePermission.OwnerOnly,
-            ReadPermission = NetworkVariablePermission.Everyone
-        });
-    public NetworkVariableVector3 transformForward = new NetworkVariableVector3(new NetworkVariableSettings
-    {
-        WritePermission = NetworkVariablePermission.OwnerOnly,
-        ReadPermission = NetworkVariablePermission.Everyone
-    });
+    [SerializeField]
+    private stats status;
     [SerializeField]
     private GUNS CurrentlyEquipedWeapon=GUNS.RocketLauncher;
     [SerializeField]
@@ -37,29 +24,23 @@ public class ShootPrefab : NetworkBehaviour
     private float timeout = 0;
 
     void Update(){
-        // timeout+=Time.deltaTime;
-        // if(IsOwner){
-        //     transformParentPosition.Value = transform.parent.parent.position;
-        //     transformForward.Value=transform.forward;
-        //     if(Input.GetMouseButtonDown(0)){ 
-        //        isShooting.Value=true;
-        //     } else {
-        //         if(timeout>3f){
-        //             isShooting.Value = false;
-        //             timeout=0;
-        //         }
-        //     }
-        // }
-        // if(isShooting.Value&&!previousIsShooting)
-        //     hasShot=false;
-        // if(isShooting.Value&&!hasShot){
-        //     hasShot = true;
-        //     Shoot(transformForward.Value,transformParentPosition.Value,CurrentlyEquipedWeapon);
-        // }
-        // previousIsShooting = isShooting.Value;
         if(IsOwner){
             if(Input.GetMouseButtonDown(0)){ 
-               ShootServerRpc(transform.forward,transform.parent.parent.position,CurrentlyEquipedWeapon,transform.rotation);
+                if(status){
+                    float weaponCost = 0;
+                    switch(CurrentlyEquipedWeapon){
+                        case GUNS.RocketLauncher:
+                            weaponCost=30;
+                            break;
+                        case GUNS.ShieldGun:
+                            weaponCost=90;
+                            break;
+                    }
+                    if(status.getCurrentEnergy()>=weaponCost){
+                        status.deductEnergy(weaponCost);
+                        ShootServerRpc(transform.forward,transform.parent.parent.position,CurrentlyEquipedWeapon,transform.rotation);
+                    }
+                }
             } 
             if(Input.GetKeyDown(KeyCode.Alpha1)){ 
                CurrentlyEquipedWeapon=GUNS.RocketLauncher;
@@ -86,7 +67,6 @@ public class ShootPrefab : NetworkBehaviour
                 GameObject gObj2 = Instantiate(shieldPrefab,position,rotation);
                 gObj2.transform.LookAt(position);
                 gObj2.GetComponent<NetworkObject>().Spawn();
-
             break;
         }
     }
@@ -104,7 +84,6 @@ public class ShootPrefab : NetworkBehaviour
                     rb.isKinematic=false;
                     rb.AddForce(dirrection*ShootVelocity);
                 }
-                
                 break;
             case GUNS.ShieldGun:
                 position += dirrection;
